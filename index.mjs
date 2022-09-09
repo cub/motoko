@@ -1,6 +1,6 @@
 import path from 'node:path';
 import glob from 'glob';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, InteractionType } from 'discord.js';
 import {
   joinVoiceChannel,
   createAudioPlayer,
@@ -8,6 +8,8 @@ import {
   entersState,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
+// for local dev
+// import config from './config.json' assert { type: 'json' };
 
 const audioPlayer = createAudioPlayer();
 
@@ -43,7 +45,6 @@ const data = {
     all: globListToObject(glob.sync('audio/all/*.*')),
     airhorn: globListToObject(glob.sync('audio/airhorn/*.*')),
   },
-  image: globListToObject(glob.sync('image/*.*')),
 };
 
 async function connectToChannel(channel) {
@@ -62,116 +63,108 @@ async function connectToChannel(channel) {
   }
 }
 
-async function playSoundToChannel(sound, channel) {
-  try {
-    if (channel) {
-      const connection = await connectToChannel(channel);
+async function playSoundToChannel(sound, soundName, interaction) {
+  if (interaction.member?.voice?.channel) {
+    await interaction.reply({ content: `▶️ \`${soundName}\``, ephemeral: true });
+    try {
+      const connection = await connectToChannel(interaction.member.voice.channel);
       connection.subscribe(audioPlayer);
       const resource = createAudioResource(sound);
       audioPlayer.play(resource);
+    } catch (err) {
+      log(err);
     }
-  } catch (err) {
-    log(err);
+  } else {
+    await interaction.reply({ content: '‼️ You are not in a voice channel ಠ_ಠ', ephemeral: true });
   }
 }
 
-async function onMessage(message) {
-  switch (message.content) {
-    case '!ping': {
-      log('!ping', message.author.tag);
-      await message.channel.send('ಠ_ಠ pong.');
+async function onCommand(interaction) {
+  switch (interaction.commandName) {
+    case 'ping': {
+      log('/ping', interaction.user.tag);
+      await interaction.reply({ content: 'ಠ_ಠ pong', ephemeral: true });
       break;
     }
-    case '!help': {
-      log('!help', message.author.tag);
-      let msg = ['-- Sounds ------------------------------', '`!airhorn`'];
+    case 'help': {
+      log('/help', interaction.user.tag);
+      await interaction.reply({ content: '~' });
+      await interaction.deleteReply();
+      const msg = ['-- Sounds ------------------------------', '`/airhorn`'];
       Object.keys(data.audio.all).forEach((key) => {
-        msg.push(`\`!${key}\``);
+        msg.push(`\`/play ${key}\``);
       });
       const NB_LINES = 50;
       for (let i = 0; i < msg.length; i += NB_LINES) {
         // eslint-disable-next-line no-await-in-loop
-        await message.author.send(msg.slice(i, i + NB_LINES).join('\n'));
+        await interaction.user.send(msg.slice(i, i + NB_LINES).join('\n'));
         // eslint-disable-next-line no-await-in-loop
         await sleep(200);
       }
+      await interaction.user.send(msg);
+      break;
+    }
+    case 'airhorn': {
+      const allSounds = Object.keys(data.audio.airhorn);
+      const randomSound = allSounds[Math.floor(Math.random() * allSounds.length)];
+      log(`/airhorn >> ${randomSound}`, interaction.user.tag);
+      playSoundToChannel(data.audio.airhorn[randomSound], randomSound, interaction);
+      break;
+    }
+    case 'random': {
+      const allSounds = Object.keys(data.audio.all);
+      const randomSound = allSounds[Math.floor(Math.random() * allSounds.length)];
+      log(`/random >> ${randomSound}`, interaction.user.tag);
+      playSoundToChannel(data.audio.all[randomSound], randomSound, interaction);
+      break;
+    }
+    case 'play': {
+      const query = interaction.options.getString('query');
+      if (data.audio.all[query]) {
+        log(`/play ${query}`, interaction.user.tag);
+        playSoundToChannel(data.audio.all[query], query, interaction);
+      } else {
+        await interaction.reply({
+          content: `‼️ No sound to play with \`${query}\` 👀`,
+          ephemeral: true,
+        });
+      }
+      break;
+    }
+    default:
+      log('wtf onCommand interaction.commandName', interaction.commandName);
+      break;
+  }
+}
+async function onAutoComplete(interaction) {
+  const focusedValue = interaction.options.getFocused();
+  const allSounds = Object.keys(data.audio.all);
+  switch (interaction.commandName) {
+    case 'play':
+      await interaction.respond(
+        allSounds
+          .filter((name) => name.includes(focusedValue))
+          .splice(0, 25)
+          .map((choice) => ({ name: choice, value: choice })),
+      );
+      break;
+    default:
+      log('wtf onAutoComplete interaction.commandName', interaction.commandName);
+      break;
+  }
+}
 
-      msg = '-- Images ------------------------------\n';
-      Object.keys(data.image).forEach((key) => {
-        msg += `\`!${key}\`\n`;
-      });
-      await message.author.send(msg);
-      try {
-        await message.delete();
-      } catch (err) {
-        log('cant delete..', message.content);
-      }
+async function onInteraction(interaction) {
+  switch (interaction.type) {
+    case InteractionType.ApplicationCommand:
+      onCommand(interaction);
       break;
-    }
-    case '!airhorn': {
-      const allNames = Object.keys(data.audio.airhorn);
-      const randomName = allNames[Math.floor(Math.random() * allNames.length)];
-      log('!airhorn', message.author.tag);
-      if (message.member?.voice?.channel) {
-        playSoundToChannel(
-          data.audio.airhorn[randomName],
-          message.member.voice.channel,
-        );
-        try {
-          await message.delete();
-        } catch (err) {
-          log('cant delete..', message.content);
-        }
-      } else {
-        await message.author.send('You are not in a voice channel ಠ_ಠ');
-      }
+    case InteractionType.ApplicationCommandAutocomplete:
+      onAutoComplete(interaction);
       break;
-    }
-    case '!random': {
-      const allNames = Object.keys(data.audio.all);
-      const randomName = allNames[Math.floor(Math.random() * allNames.length)];
-      log(`!random >> ${randomName}`, message.author.tag);
-      if (message.member?.voice?.channel) {
-        playSoundToChannel(data.audio.all[randomName], message.member.voice.channel);
-        try {
-          await message.delete();
-        } catch (err) {
-          log('cant delete..', message.content);
-        }
-      } else {
-        await message.author.send('You are not in a voice channel ಠ_ಠ');
-      }
+    default:
+      log('wtf interaction', interaction);
       break;
-    }
-    default: {
-      const cmdName = message.content.substr(1);
-      const prefix = message.content.substring(0, 1);
-      if (prefix === '!') {
-        if (data.audio.all[cmdName]) {
-          log(`!${cmdName}`, message.author.tag);
-          if (message.member?.voice?.channel) {
-            playSoundToChannel(data.audio.all[cmdName], message.member.voice.channel);
-            try {
-              await message.delete();
-            } catch (err) {
-              log('cant delete..', message.content);
-            }
-          } else {
-            await message.author.send('You are not in a voice channel ಠ_ಠ');
-          }
-        }
-        if (data.image[cmdName]) {
-          log(`!${cmdName}`, message.author.tag);
-          await message.channel.send('', { files: [data.image[cmdName]] });
-          try {
-            await message.delete();
-          } catch (err) {
-            log('cant delete..', message.content);
-          }
-        }
-      }
-      break;
-    }
   }
 }
 
@@ -180,6 +173,10 @@ function initDiscordClient() {
     log('Ready!');
   });
   client.login(process.env.DISCORD_TOKEN);
-  client.on('messageCreate', onMessage);
+  // client.login(config.token);
+  client.on('interactionCreate', onInteraction);
+  client.on('error', (err) => {
+    log('Error!', err);
+  });
 }
 initDiscordClient();
