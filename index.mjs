@@ -88,8 +88,7 @@ async function onCommand(interaction) {
     }
     case 'help': {
       log('/help', interaction.user.tag);
-      await interaction.reply({ content: '~' });
-      await interaction.deleteReply();
+      await interaction.reply({ content: 'Sending you the list of sounds in PM..', ephemeral: true });
       const msg = ['-- Sounds ------------------------------', '`/airhorn`'];
       Object.keys(data.audio.all).forEach((key) => {
         msg.push(`\`/play ${key}\``);
