@@ -1,13 +1,28 @@
 # Motoko
 
-Major Motoko Kusanagi (草薙 素子, Kusanagi Motoko) is the main protagonist in Masamune Shirow's anime and manga series. She is a cyborg employed as the squad leader of Public Security Section 9, a fictional division of the real Japanese National Public Safety Commission, and earned her rank of major during her service in the Japan Ground Self Defense Force. She is voiced by Atsuko Tanaka in the movies and the Ghost in the Shell: Stand Alone Complex series. In the English dubbing of the film, Mimi Woods provides the voice, and in the Bandai dub of the Stand Alone Complex TV series, Mary Elizabeth McGlynn is the voice actress.
+Motoko is a [Discord](https://discord.com) bot that play sounds.
+
+Why this name ? It's a ref for [Major Motoko Kusanagi](https://ghostintheshell.fandom.com/wiki/Motoko_Kusanagi).
+
+## Stack
+
+- Node.js
+- Discord.js
+- Docker
 
 ## Commands
 
-- `!airhorn`
-- `!random`
-- `!image`
+- `/ping`
+- `/help`
+- `/airhorn`
+- `/random`
+- `/play xxx`
 
 ## Deploy
 
+Personnaly I use [Fly.io](https://fly.io) to host my Node.js service.
+
 `flyctl deploy --local-only --no-cache --strategy immediate`
+
+Have fun
+![](https://static.wikia.nocookie.net/ghostintheshell/images/f/fe/Laughing_man.svg/revision/latest?path-prefix=en)
