@@ -8,6 +8,7 @@ import {
   entersState,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
+import Fuse from 'fuse.js';
 // for local dev
 // import config from './config.json' assert { type: 'json' };
 
@@ -88,7 +89,10 @@ async function onCommand(interaction) {
     }
     case 'help': {
       log('/help', interaction.user.tag);
-      await interaction.reply({ content: 'Sending you the list of sounds in PM..', ephemeral: true });
+      await interaction.reply({
+        content: 'Sending you the list of sounds in PM..',
+        ephemeral: true,
+      });
       const msg = ['-- Sounds ------------------------------', '`/airhorn`'];
       Object.keys(data.audio.all).forEach((key) => {
         msg.push(`\`/play ${key}\``);
@@ -137,15 +141,14 @@ async function onCommand(interaction) {
 }
 async function onAutoComplete(interaction) {
   const focusedValue = interaction.options.getFocused();
-  const allSounds = Object.keys(data.audio.all);
+  const allSounds = Object.keys(data.audio.all).sort((a, b) => a.length - b.length);
+  let fuse;
+  let result;
   switch (interaction.commandName) {
     case 'play':
-      await interaction.respond(
-        allSounds
-          .filter((name) => name.includes(focusedValue))
-          .splice(0, 25)
-          .map((choice) => ({ name: choice, value: choice })),
-      );
+      fuse = new Fuse(allSounds);
+      result = fuse.search(focusedValue, { limit: 25 });
+      await interaction.respond(result.map((res) => ({ name: res.item, value: res.item })));
       break;
     default:
       log('wtf onAutoComplete interaction.commandName', interaction.commandName);
