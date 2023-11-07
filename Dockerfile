@@ -1,4 +1,4 @@
-FROM node:18-slim
+FROM node:slim
 
 RUN mkdir -p /usr/src/bot
 WORKDIR /usr/src/bot

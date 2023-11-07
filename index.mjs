@@ -1,5 +1,5 @@
 import path from 'node:path';
-import glob from 'glob';
+import { glob } from 'glob';
 import { Client, GatewayIntentBits, InteractionType } from 'discord.js';
 import {
   joinVoiceChannel,
@@ -9,6 +9,7 @@ import {
   VoiceConnectionStatus,
 } from '@discordjs/voice';
 import Fuse from 'fuse.js';
+
 // for local dev
 // import config from './config.json' assert { type: 'json' };
 
