@@ -6,7 +6,7 @@ import {
   createAudioPlayer,
   createAudioResource,
   entersState,
-  VoiceConnectionStatus,
+  VoiceConnectionStatus
 } from '@discordjs/voice';
 import Fuse from 'fuse.js';
 
@@ -20,12 +20,11 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.MessageContent,
-  ],
+    GatewayIntentBits.MessageContent
+  ]
 });
 
 function log(...args) {
-  // eslint-disable-next-line no-console
   console.log(new Date().toJSON(), args);
 }
 
@@ -38,22 +37,22 @@ async function sleep(ms) {
 function globListToObject(arr) {
   return arr.reduce(
     (acc, item) => ({ ...acc, [path.basename(item, path.extname(item))]: item }),
-    {},
+    {}
   );
 }
 
 const data = {
   audio: {
     all: globListToObject(glob.sync('audio/all/*.*')),
-    airhorn: globListToObject(glob.sync('audio/airhorn/*.*')),
-  },
+    airhorn: globListToObject(glob.sync('audio/airhorn/*.*'))
+  }
 };
 
 async function connectToChannel(channel) {
   const connection = joinVoiceChannel({
     channelId: channel.id,
     guildId: channel.guild.id,
-    adapterCreator: channel.guild.voiceAdapterCreator,
+    adapterCreator: channel.guild.voiceAdapterCreator
   });
 
   try {
@@ -92,7 +91,7 @@ async function onCommand(interaction) {
       log('/help', interaction.user.tag);
       await interaction.reply({
         content: 'Sending you the list of sounds in PM..',
-        ephemeral: true,
+        ephemeral: true
       });
       const msg = ['-- Sounds ------------------------------', '`/airhorn`'];
       Object.keys(data.audio.all).forEach((key) => {
@@ -100,9 +99,7 @@ async function onCommand(interaction) {
       });
       const NB_LINES = 50;
       for (let i = 0; i < msg.length; i += NB_LINES) {
-        // eslint-disable-next-line no-await-in-loop
         await interaction.user.send(msg.slice(i, i + NB_LINES).join('\n'));
-        // eslint-disable-next-line no-await-in-loop
         await sleep(200);
       }
       await interaction.user.send(msg);
@@ -130,7 +127,7 @@ async function onCommand(interaction) {
       } else {
         await interaction.reply({
           content: `‼️ No sound to play with \`${query}\` 👀`,
-          ephemeral: true,
+          ephemeral: true
         });
       }
       break;

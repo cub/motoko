@@ -4,28 +4,29 @@
     "description": "",
     "main": "index.mjs",
     "scripts": {
-        "live": "node index.mjs"
+        "live": "node index.mjs",
+        "lint": "eslint . --fix"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@discordjs/builders": "^1.7.0",
+        "@discordjs/builders": "^1.8.1",
         "@discordjs/opus": "^0.9.0",
-        "@discordjs/rest": "^2.2.0",
-        "@discordjs/voice": "^0.16.1",
-        "discord-api-types": "^0.37.64",
-        "discord.js": "^14.14.1",
+        "@discordjs/rest": "^2.3.0",
+        "@discordjs/voice": "^0.17.0",
+        "discord-api-types": "^0.37.83",
+        "discord.js": "^14.15.2",
         "ffmpeg-static": "^5.2.0",
         "fuse.js": "^7.0.0",
-        "glob": "^10.3.10",
+        "glob": "^10.3.12",
         "libsodium-wrappers": "^0.7.13",
         "opusscript": "^0.1.1",
         "sodium": "^3.0.2",
         "tweetnacl": "^1.0.3"
     },
     "devDependencies": {
-        "eslint": "^8.54.0",
-        "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-plugin-import": "^2.29.0"
+        "@eslint/js": "^9.2.0",
+        "eslint": "^9.2.0",
+        "globals": "^15.1.0"
     }
 }
