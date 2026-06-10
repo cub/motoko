@@ -5,6 +5,5 @@
   "tabWidth": 2,
   "printWidth": 100,
   "trailingComma": "none",
-  "useTabs": false,
-  "singleAttributePerLine": true
+  "useTabs": false
 }

@@ -1,31 +1,31 @@
 {
-    "name": "motoko",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.mjs",
-    "scripts": {
-        "live": "node index.mjs"
-    },
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "@discordjs/builders": "^1.4.0",
-        "@discordjs/opus": "^0.9.0",
-        "@discordjs/rest": "^1.5.0",
-        "@discordjs/voice": "^0.14.0",
-        "discord-api-types": "^0.37.35",
-        "discord.js": "^14.7.1",
-        "ffmpeg-static": "^5.1.0",
-        "fuse.js": "^6.6.2",
-        "glob": "^8.1.0",
-        "libsodium-wrappers": "^0.7.11",
-        "opusscript": "^0.0.8",
-        "sodium": "^3.0.2",
-        "tweetnacl": "^1.0.3"
-    },
-    "devDependencies": {
-        "eslint": "^8.34.0",
-        "eslint-config-airbnb-base": "^15.0.0",
-        "eslint-plugin-import": "^2.27.5"
-    }
+  "name": "motoko",
+  "version": "2.0.0",
+  "description": "Discord soundboard bot",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env index.mjs",
+    "deploy-commands": "node --env-file-if-exists=.env deploy-commands.mjs",
+    "pm2": "pm2 start ecosystem.config.cjs",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.19.2",
+    "discord.js": "^14.26.4",
+    "ffmpeg-static": "^5.3.0",
+    "fuse.js": "^7.4.2"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.54.0",
+    "oxlint": "^1.69.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
 }
