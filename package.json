@@ -22,7 +22,7 @@
     "fuse.js": "^7.5.0"
   },
   "devDependencies": {
-    "oxfmt": "^0.62.0",
+    "oxfmt": "^0.72.0",
     "oxlint": "^1.77.0"
   },
   "engines": {
